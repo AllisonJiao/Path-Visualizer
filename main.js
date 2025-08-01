@@ -9,6 +9,7 @@ import { createHemisphereLight, createDirectionalLight } from './components/ligh
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 import { Loop } from './systems/loop.js';
+import { KeyboardControl } from './systems/keyboardControl.js';
 
 
 let camera;
@@ -21,6 +22,7 @@ let directionalLight1, directionalLight2;
 let renderer;
 let resizer;
 let loop;
+let keyboardControl;
 
 class World {
     constructor(container) {
@@ -32,6 +34,7 @@ class World {
         resizer = new Resizer(container, camera, renderer);
 
         loop = new Loop(camera, scene, renderer);
+        keyboardControl = new KeyboardControl(camera, document);
     }
 }
 
@@ -73,6 +76,7 @@ loadObj('resources/models/Drone\ E58.obj', 'resources/models/Drone\ E58.mtl', sc
 }, false); // Disable auto-scaling for drone
 
 loop.updatables.push(cube);
+loop.updatables.push(keyboardControl);
 
 // Load the geometry model
 loadObj('resources/models/scene_mesh_textured.obj', 'resources/models/scene_mesh_textured.mtl', scene, (model) => {
