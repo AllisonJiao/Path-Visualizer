@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
-function loadObj(objPath, mtlPath, scene) {
+function loadObj(objPath, mtlPath, scene, onLoad, autoScale = true) {
     const objLoader = new OBJLoader();
     const mtlLoader = new MTLLoader();
     mtlLoader.load(mtlPath, (mtl) => {
@@ -20,13 +20,15 @@ function loadObj(objPath, mtlPath, scene) {
         console.log('Model size:', box.getSize(new THREE.Vector3()));
         console.log('Model center:', box.getCenter(new THREE.Vector3()));
         
-        // Scale the model if it's too large
-        const size = box.getSize(new THREE.Vector3());
-        const maxDimension = Math.max(size.x, size.y, size.z);
-        if (maxDimension > 50) {
-            const scale = 50 / maxDimension;
-            root.scale.set(scale, scale, scale);
-            console.log('Model scaled by:', scale);
+        // Scale the model if it's too large (only if autoScale is true)
+        if (autoScale) {
+            const size = box.getSize(new THREE.Vector3());
+            const maxDimension = Math.max(size.x, size.y, size.z);
+            if (maxDimension > 50) {
+                const scale = 50 / maxDimension;
+                root.scale.set(scale, scale, scale);
+                console.log('Model auto-scaled by:', scale);
+            }
         }
         
         // Center the model AFTER scaling
@@ -42,6 +44,11 @@ function loadObj(objPath, mtlPath, scene) {
         console.log('Final box center:', finalBox.getCenter(new THREE.Vector3()));
         
         scene.add(root);
+        
+        // Call the onLoad callback with the root object
+        if (onLoad) {
+            onLoad(root);
+        }
         
         // Debug: Check the model's children and materials
         console.log('Model children details:');
