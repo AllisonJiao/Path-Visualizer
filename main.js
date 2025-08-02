@@ -24,6 +24,8 @@ let resizer;
 let loop;
 let keyboardControl;
 
+let controls;
+
 class World {
     constructor(container) {
         camera = createCamera();
@@ -34,12 +36,7 @@ class World {
         resizer = new Resizer(container, camera, renderer);
 
         loop = new Loop(camera, scene, renderer);
-        keyboardControl = new KeyboardControl(camera, document);
     }
-}
-
-function render() {
-    renderer.render(scene, camera);
 }
 
 // Initialize the world
@@ -73,17 +70,21 @@ function adjustModel(model, modelType) {
 
 loadObj('resources/models/Drone\ E58.obj', 'resources/models/Drone\ E58.mtl', scene, (model) => {
     adjustModel(model, 'drone_e58');
+    // orbit control
+    controls = new OrbitControls( camera, container );
+    controls.target.copy(model.position);   // orbit around drone
+    controls.update();
+
+    keyboardControl = new KeyboardControl(camera, model, document);
+    loop.updatables.push(keyboardControl);
 }, false); // Disable auto-scaling for drone
 
 loop.updatables.push(cube);
-loop.updatables.push(keyboardControl);
 
 // Load the geometry model
 loadObj('resources/models/scene_mesh_textured.obj', 'resources/models/scene_mesh_textured.mtl', scene, (model) => {
     adjustModel(model, 'scene_mesh_textured');
 });
-// Rotate in correct orientation
-
 
 // Create and add lights
 hemisphereLight = createHemisphereLight();
@@ -98,11 +99,6 @@ scene.add(directionalLight1.target);
 scene.add(directionalLight2);
 scene.add(directionalLight2.target);
 console.log('Lights added successfully');
-
-// orbit control
-const controls = new OrbitControls( camera, container );
-controls.target.set(0, 0, 0);
-controls.update();
 
 renderer.setPixelRatio(window.devicePixelRatio);
 
