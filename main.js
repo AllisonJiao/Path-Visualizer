@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import { createCamera } from './components/camera.js';
@@ -68,16 +69,37 @@ function adjustModel(model, modelType) {
     }
 }
 
-loadObj('resources/models/Drone\ E58.obj', 'resources/models/Drone\ E58.mtl', scene, (model) => {
+loadObj('resources/models/Drone E58.obj', 'resources/models/Drone E58.mtl', scene, (model) => {
     adjustModel(model, 'drone_e58');
-    // orbit control
-    controls = new OrbitControls( camera, container );
-    controls.target.copy(model.position);   // orbit around drone
+
+    // Compute bounding box center of drone
+    const box = new THREE.Box3().setFromObject(model);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+
+    // Setup OrbitControls
+    controls = new OrbitControls(camera, container);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enablePan = false;
+    controls.target.copy(center);
     controls.update();
 
-    keyboardControl = new KeyboardControl(camera, model, document);
+    // Position camera behind and above drone
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fitDistance = maxDim * 1.5;
+
+    camera.position.copy(center.clone().add(new THREE.Vector3(0, maxDim * 0.5, fitDistance)));
+    camera.lookAt(center);
+    controls.update();
+
+    // Initialize keyboard control
+    keyboardControl = new KeyboardControl(camera, model, controls, document);
     loop.updatables.push(keyboardControl);
-}, false); // Disable auto-scaling for drone
+}, false);
+
 
 loop.updatables.push(cube);
 
