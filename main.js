@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GamepadControl } from './systems/gamepadControl.js';
 
 import { createCamera } from './components/camera.js';
 import { createScene } from './components/scene.js';
@@ -24,6 +25,7 @@ let renderer;
 let resizer;
 let loop;
 let keyboardControl;
+let gamepadControl;
 
 let controls;
 
@@ -32,7 +34,7 @@ class World {
         camera = createCamera();
         scene = createScene();
         renderer = createRenderer();
-        
+
         // Create resizer to handle window resizing
         resizer = new Resizer(container, camera, renderer);
 
@@ -97,7 +99,9 @@ loadObj('resources/models/Drone E58.obj', 'resources/models/Drone E58.mtl', scen
 
     // Initialize keyboard control
     keyboardControl = new KeyboardControl(camera, model, controls, document);
+    gamepadControl = new GamepadControl(camera, model, controls);
     loop.updatables.push(keyboardControl);
+    loop.updatables.push(gamepadControl);
 }, false);
 
 
