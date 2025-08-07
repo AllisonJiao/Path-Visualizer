@@ -8,16 +8,42 @@ function applyDeadzone(value, threshold = DEADZONE) {
 }
 
 class GamepadControl {
-    constructor(scene, camera, drone, controls) {
+    constructor(scene, camera, drone, controls, wp) {
         this.scene = scene;
         this.camera = camera;
         this.drone = drone;
         this.controls = controls;
+        this.wp = wp;
         this.speed = 0.05;
         this.rotationSpeed = 0.02;
 
         // Track previous button state for square button (index 1)
         this.prevSquarePressed = false;
+
+        // Line representing the curve
+        this.pathLine = null;
+    }
+
+    updatePathLine() {
+        // Remove existing path if it exists
+        if (this.pathLine) {
+            this.scene.remove(this.pathLine);
+            this.pathLine.geometry.dispose();
+            this.pathLine.material.dispose();
+            this.pathLine = null;
+        }
+    
+        // Only draw if we have at least 2 waypoints
+        if (this.wp.length < 2) return;
+    
+        // Create the curve
+        const curve = new THREE.CatmullRomCurve3(this.wp);
+        const points = curve.getPoints(100); // 100 segments for smoothness
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        this.pathLine = new THREE.Line(geometry, material);
+    
+        this.scene.add(this.pathLine);
     }
 
     tick() {
@@ -66,7 +92,7 @@ class GamepadControl {
         offset.setFromSpherical(spherical);
         this.camera.position.copy(this.drone.position.clone().add(offset));
         this.controls.target.copy(this.drone.position);
-        this.controls.update();
+        this.controls.update(); 
 
         // Add sphere on square button press (index 1)
         const squarePressed = gp.buttons[2].pressed;
@@ -74,6 +100,12 @@ class GamepadControl {
             const sphere = createSphere();
             sphere.position.copy(this.drone.position);
             this.scene.add(sphere);
+            this.wp.push(this.drone.position.clone());
+            // console.log(this.drone.position);
+            // console.log(this.wp);
+
+            // Draw or update the curve path
+            this.updatePathLine();
         }
         this.prevSquarePressed = squarePressed;
     }

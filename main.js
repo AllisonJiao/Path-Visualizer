@@ -29,6 +29,8 @@ let loop;
 let keyboardControl;
 let gamepadControl;
 
+let wp = [];
+
 let controls;
 
 class World {
@@ -101,7 +103,7 @@ loadObj('resources/models/Drone E58.obj', 'resources/models/Drone E58.mtl', scen
 
     // Initialize keyboard control
     keyboardControl = new KeyboardControl(camera, model, controls, document);
-    gamepadControl = new GamepadControl(scene, camera, model, controls);
+    gamepadControl = new GamepadControl(scene, camera, model, controls, wp);
     loop.updatables.push(keyboardControl);
     loop.updatables.push(gamepadControl);
 }, false);
