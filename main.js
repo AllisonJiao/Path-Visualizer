@@ -5,6 +5,7 @@ import { GamepadControl } from './systems/gamepadControl.js';
 import { createCamera } from './components/camera.js';
 import { createScene } from './components/scene.js';
 import { createCube } from './components/cube.js';
+import { createSphere } from './components/sphere.js';
 import { loadObj } from './components/obj.js';
 import { createHemisphereLight, createDirectionalLight } from './components/light.js';
 
@@ -17,6 +18,7 @@ import { KeyboardControl } from './systems/keyboardControl.js';
 let camera;
 let scene;
 let cube;
+let sphere;
 
 let hemisphereLight;
 let directionalLight1, directionalLight2;
@@ -99,7 +101,7 @@ loadObj('resources/models/Drone E58.obj', 'resources/models/Drone E58.mtl', scen
 
     // Initialize keyboard control
     keyboardControl = new KeyboardControl(camera, model, controls, document);
-    gamepadControl = new GamepadControl(camera, model, controls);
+    gamepadControl = new GamepadControl(scene, camera, model, controls);
     loop.updatables.push(keyboardControl);
     loop.updatables.push(gamepadControl);
 }, false);
